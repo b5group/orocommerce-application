@@ -19,22 +19,19 @@ RUN git clone --depth=1 https://github.com/oroinc/orocommerce-application.git /v
 # Changer les permissions pour éviter les erreurs sur Render
 RUN chmod -R 777 /var/www/orocommerce
 
-# Supprimer et recréer les fichiers d’environnement corrompus
+# Supprimer les fichiers corrompus et les recréer
 RUN rm -f /var/www/orocommerce/.env /var/www/orocommerce/.env.dist /var/www/orocommerce/config/parameters.yml
 RUN touch /var/www/orocommerce/.env /var/www/orocommerce/.env.dist /var/www/orocommerce/config/parameters.yml
 
-# Corriger les erreurs de syntaxe des fichiers d’environnement
-RUN sed -i 's/ OR0_/ORO_/g' /var/www/orocommerce/.env || true
-RUN sed -i 's/ OR0_/ORO_/g' /var/www/orocommerce/.env.dist || true
-RUN sed -i 's/ OR0_/ORO_/g' /var/www/orocommerce/config/parameters.yml || true
-
-# Passer au bon répertoire pour l’installation
-WORKDIR /var/www/orocommerce
+# Corriger le format des fichiers d'environnement
+RUN echo 'ORO_POST_INSTALL_CMD=""' >> /var/www/orocommerce/.env
+RUN echo 'ORO_POST_INSTALL_CMD=""' >> /var/www/orocommerce/.env.dist
+RUN echo 'ORO_POST_INSTALL_CMD: ""' >> /var/www/orocommerce/config/parameters.yml
 
 # Supprimer les fichiers de cache potentiellement corrompus
 RUN rm -rf vendor composer.lock
 
-# Installer Composer proprement (sans erreurs de plateforme)
+# Installer Composer proprement
 RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs || \
     composer update --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
