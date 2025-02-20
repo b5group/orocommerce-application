@@ -19,6 +19,15 @@ RUN git clone --depth=1 https://github.com/oroinc/orocommerce-application.git /v
 # Changer les permissions pour éviter les erreurs sur Render
 RUN chmod -R 777 /var/www/orocommerce
 
+# Supprimer et recréer les fichiers d’environnement corrompus
+RUN rm -f /var/www/orocommerce/.env /var/www/orocommerce/.env.dist /var/www/orocommerce/config/parameters.yml
+RUN touch /var/www/orocommerce/.env /var/www/orocommerce/.env.dist /var/www/orocommerce/config/parameters.yml
+
+# Corriger les erreurs de syntaxe des fichiers d’environnement
+RUN sed -i 's/ OR0_/ORO_/g' /var/www/orocommerce/.env || true
+RUN sed -i 's/ OR0_/ORO_/g' /var/www/orocommerce/.env.dist || true
+RUN sed -i 's/ OR0_/ORO_/g' /var/www/orocommerce/config/parameters.yml || true
+
 # Passer au bon répertoire pour l’installation
 WORKDIR /var/www/orocommerce
 
